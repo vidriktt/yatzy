@@ -82,6 +82,7 @@ public class Yatzy {
                     sum += lahter;
             }
             return sum;
+
 //        } else if (lahter == 7) {
 //            for (Täring täring : täringud) {
 //                temp = täring.getArv();

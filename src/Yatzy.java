@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -5,49 +6,58 @@ public class Yatzy {
 
     private static Täring[] täringud = {new Täring(), new Täring(), new Täring(), new Täring(), new Täring()};
     private static Integer[] tulemus = new Integer[16];
+    private static int käike = 0;
     private static int viskeid = 0;
-    private static int lahter;
 
     private static String[] tabel = {
-            "\nYATZY",
-            "1.  Ühed         ",
-            "2.  Kahed        ",
-            "3.  Kolmed       ",
-            "4.  Neljad       ",
-            "5.  Viied        ",
-            "6.  Kuued        ",
-            "-----------------",
-            "7.  Paar         ",
-            "8.  Kaks paari   ",
-            "9.  Kolmik       ",
-            "10. Nelik        ",
-            "11. Väike Rida   ",
-            "12. Suur Rida    ",
-            "13. Täismaja     ",
-            "14. Juhus        ",
-            "15. Yatzy!       "
+            "\n          YATZY",
+            "┌───────────────────────┐",
+            "│ 1.  Ühed         %\t│",
+            "│ 2.  Kahed        %\t│",
+            "│ 3.  Kolmed       %\t│",
+            "│ 4.  Neljad       %\t│",
+            "│ 5.  Viied        %\t│",
+            "│ 6.  Kuued        %\t│",
+            "├───────────────────────┤",
+            "│ Summa            &\t│",
+            "│ Boonus           &\t│",
+            "├───────────────────────┤",
+            "│ 7.  Üks paar     %\t│",
+            "│ 8.  Kaks paari   %\t│",
+            "│ 9.  Kolmik       %\t│",
+            "│ 10. Nelik        %\t│",
+            "│ 11. Väike Rida   %\t│",
+            "│ 12. Suur Rida    %\t│",
+            "│ 13. Täismaja     %\t│",
+            "│ 14. Juhus        %\t│",
+            "│ 15. Yatzy!       %\t│",
+            "├───────────────────────┤",
+            "│ Kokku            &\t│",
+            "└───────────────────────┘"
     };
 
 
     private static void prindiTabel() {
         for (String rida : tabel) {
             if (rida.contains(".")) { // Peab ainult läbi vaatama need, millel number ees.
-                Integer punktid = tulemus[Integer.parseInt(rida.substring(0, rida.indexOf("."))) - 1];
-                if (punktid == null) // Kui selle rea punktid on juba sisestatud.
-                    System.out.println(rida);
-                else
-                    System.out.println(rida + punktid);
-            } else
+                String punktid = String.valueOf(tulemus[Integer.parseInt(rida.substring(2, rida.indexOf("."))) - 1]);
+                if (punktid.equals("null")) // Kui selle rea punkte ei leidu.
+                    punktid = " ";
+                System.out.println(rida.replaceAll("%", punktid));
+            } else if (rida.contains("&")) {
+                System.out.println(rida.replace('&', ' '));
+            } else {
                 System.out.println(rida);
+            }
         }
         System.out.println();
     }
 
-    private static boolean täringuViskamine(String sisend) {
+    private static void täringuViskamine(String sisend) {
         /* Kui täringuid ei pea enam veeretama */
         if (sisend.equals("11111")) {
-            viskeid = 0;
-            return false;
+            viskeid = 3;
+            return;
         }
 
         /* Veeretab nõutud täringud uuesti */
@@ -64,13 +74,6 @@ public class Yatzy {
         for (Täring täring : täringud)
             System.out.print(täring.getArv() + " ");
         System.out.println();
-
-        if (viskeid == 3) {
-            viskeid = 0;
-            return false;
-        }
-
-        return true;
     }
 
     private static int punktid(int lahter) {
@@ -196,24 +199,53 @@ public class Yatzy {
             return 0;
     }
 
+    private static void puhastaScreen() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+        try {
+            new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+        } catch (InterruptedException | IOException ignored) {
+        }
+    }
+
     public static void main(String[] args) {
-        prindiTabel();
-        boolean viskeTulemus = täringuViskamine("00000");
-
         Scanner scanner = new Scanner(System.in);
-        while (viskeTulemus) {
-            System.out.print("Millised täringud säilitada? ");
-            viskeTulemus = täringuViskamine(scanner.nextLine());
+        while (käike < 16) {
+            puhastaScreen();
+            prindiTabel();
+
+            /* Täringute viskamine */
+            täringuViskamine("00000");
+            while (viskeid != 3) {
+                System.out.print("Millised täringud säilitada (1 - säilitamiseks, 0 - veeretamiseks)? ");
+                String sisend = scanner.nextLine().trim();
+                while (!sisend.matches("[0-1]+") || sisend.length() != 5) {
+                    System.out.print("Vigane sisend! Palun kirjtage õiged numbrid (nt 10000): ");
+                    sisend = scanner.nextLine().trim();
+                }
+                täringuViskamine(sisend);
+            }
+            viskeid = 0;
+            System.out.println();
+
+            /* Lahtri numbri saavutamine */
+            System.out.print("Millisesse lahtrisse soovite punktid sisestada? ");
+            int lahter = Integer.parseInt(scanner.nextLine());
+            do {
+                if (!(0 < lahter && lahter < 16)) {
+                    System.out.print("Palun sisestage sobiv lahtrinumber: ");
+                    lahter = Integer.parseInt(scanner.nextLine());
+                } else if (tulemus[lahter - 1] != null) {
+                    lahter = -1;
+                    System.out.println("Sellesse lahtrisse on juba number sisestatud.");
+                } else break;
+            } while (true);
+
+            /* Punktide kirjapanemine */
+            tulemus[lahter - 1] = punktid(lahter);
+            käike++;
         }
 
-        System.out.print("Millisesse lahtrisse soovite punktid sisestada? ");
-        lahter = Integer.parseInt(scanner.nextLine());
-        if (!(lahter >= 1 && lahter <= 15)) {
-            System.out.print("Palun sisestage sobiv lahtrinumber: ");
-            lahter = scanner.nextInt();
-        }
-
-        System.out.println(punktid(lahter));
     }
 
 }

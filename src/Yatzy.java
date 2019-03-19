@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Yatzy {
@@ -74,6 +75,7 @@ public class Yatzy {
 
     private static int punktid(int lahter) {
         int sum = 0;
+        int upper = 0;
         int temp = 0;
 
         if (lahter >= 1 && lahter <= 6) {
@@ -81,13 +83,115 @@ public class Yatzy {
                 if (täring.getArv() == lahter)
                     sum += lahter;
             }
+            upper += sum;
+            if (upper >= 63)
+                System.out.println("Saite veel 50 lisapunkti!");
             return sum;
-//        } else if (lahter == 7) {
-//            for (Täring täring : täringud) {
-//                temp = täring.getArv();
-//                if ()
-//            }
-//            return sum;
+
+        } else if (lahter == 7) {
+            for (int i = 0; i < täringud.length; i++) {
+                for (int j = i + 1; j < täringud.length; j++) {
+                    if (täringud[i].getArv() == täringud[j].getArv())
+                        sum = täringud[i].getArv() + täringud[j].getArv();
+                }
+            }
+            return sum;
+
+        } else if (lahter == 8) {
+            boolean leitud = false;
+            int paar = 0;
+
+            for (int i = 0; i < täringud.length - 1; i++) {
+                if (täringud[i].getArv() == paar)
+                    continue;
+                for (int j = i + 1; j < täringud.length; j++) {
+                    if (täringud[i].getArv() == täringud[j].getArv()) {
+                        if (täringud[i].getArv() != paar) {
+                            if (leitud)
+                                sum = (paar + täringud[i].getArv()) * 2;
+                            paar = täringud[i].getArv();
+                            leitud = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            return sum;
+
+        } else if (lahter == 9) {
+            for (int i = 0; i < täringud.length - 2; i++) {
+                for (int j = i + 1; j < täringud.length - 1; j++) {
+                    for (int k = j + 1; k < täringud.length; k++) {
+                        if (täringud[i].getArv() == täringud[j].getArv() && täringud[j].getArv() == täringud[k].getArv())
+                            sum = täringud[i].getArv() + täringud[j].getArv() + täringud[k].getArv();
+                    }
+                }
+            }
+            return sum;
+
+        } else if (lahter == 10) {
+            for (int i = 0; i < täringud.length - 2; i++) {
+                for (int j = i + 1; j < täringud.length - 1; j++) {
+                    for (int k = j + 1; k < täringud.length; k++) {
+                        for (int l = k + 1; l < täringud.length; l++) {
+                            if (täringud[i].getArv() == täringud[j].getArv() && täringud[j].getArv() == täringud[k].getArv() && täringud[k].getArv() == täringud[l].getArv())
+                                sum = täringud[i].getArv() + täringud[j].getArv() + täringud[k].getArv() + täringud[l].getArv();
+                        }
+                    }
+                }
+            }
+            return sum;
+
+        } else if (lahter == 11 || lahter == 12) {
+            Arrays.sort(täringud);
+            for (int i = 1; i < täringud.length; i++) {
+                if (täringud[i - 1].getArv() + 1 == täringud[i].getArv())
+                    sum += täringud[i - 1].getArv();
+            }
+            if (sum == 10 || sum == 14)
+                return sum + täringud[4].getArv();
+            else
+                return 0;
+
+        } else if (lahter == 13) {
+            for (int i = 0; i < täringud.length - 2; i++) {
+                for (int j = i + 1; j < täringud.length - 1; j++) {
+                    for (int k = j + 1; k < täringud.length; k++) {
+                        if (täringud[i].getArv() == täringud[j].getArv() && täringud[j].getArv() == täringud[k].getArv()) {
+                            sum = täringud[i].getArv() + täringud[j].getArv() + täringud[k].getArv();
+                            int[] tempL = new int[2];
+                            for (int l = 0; l < täringud.length; l++) {
+                                if (!(täringud[l].getArv() == täringud[i].getArv())) {
+                                    tempL[temp] = täringud[l].getArv();
+                                    temp++;
+                                }
+                            }
+                            if (tempL[0] == tempL[1])
+                                sum += tempL[0] * 2;
+                        }
+                    }
+                }
+            }
+            return sum;
+
+        } else if (lahter == 14) {
+            for (Täring i : täringud) {
+                sum += i.getArv();
+            }
+            return sum;
+
+        } else if (lahter == 15) {
+            int arv = 0;
+            temp = täringud[0].getArv();
+            for (int i = 1; i < täringud.length; i++) {
+                if (temp == täringud[i].getArv())
+                    arv++;
+            }
+            if (arv == 4)
+                return 50;
+            else
+                return 0;
+
         } else
             return 0;
     }
@@ -106,7 +210,7 @@ public class Yatzy {
         lahter = Integer.parseInt(scanner.nextLine());
         if (!(lahter >= 1 && lahter <= 15)) {
             System.out.print("Palun sisestage sobiv lahtrinumber: ");
-            lahter = Integer.parseInt(scanner.nextLine());
+            lahter = scanner.nextInt();
         }
 
         System.out.println(punktid(lahter));

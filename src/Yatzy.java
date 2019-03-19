@@ -3,17 +3,28 @@ import java.util.Scanner;
 public class Yatzy {
 
     private static Täring[] täringud = {new Täring(), new Täring(), new Täring(), new Täring(), new Täring()};
-    private static Integer[] tulemus = new Integer[6];
+    private static Integer[] tulemus = new Integer[16];
     private static int viskeid = 0;
+    private static int lahter;
 
     private static String[] tabel = {
-            "YATZY",
-            "1. Ühed        ",
-            "2. Kahed       ",
-            "3. Kolmed      ",
-            "4. Neljad      ",
-            "5. Viied       ",
-            "6. Kuued       "
+            "\nYATZY",
+            "1.  Ühed         ",
+            "2.  Kahed        ",
+            "3.  Kolmed       ",
+            "4.  Neljad       ",
+            "5.  Viied        ",
+            "6.  Kuued        ",
+            "-----------------",
+            "7.  Paar         ",
+            "8.  Kaks paari   ",
+            "9.  Kolmik       ",
+            "10. Nelik        ",
+            "11. Väike Rida   ",
+            "12. Suur Rida    ",
+            "13. Täismaja     ",
+            "14. Juhus        ",
+            "15. Yatzy!       "
     };
 
 
@@ -25,10 +36,10 @@ public class Yatzy {
                     System.out.println(rida);
                 else
                     System.out.println(rida + punktid);
-            } else {
+            } else
                 System.out.println(rida);
-            }
         }
+        System.out.println();
     }
 
     private static boolean täringuViskamine(String sisend) {
@@ -61,15 +72,44 @@ public class Yatzy {
         return true;
     }
 
+    private static int punktid(int lahter) {
+        int sum = 0;
+        int temp = 0;
+
+        if (lahter >= 1 && lahter <= 6) {
+            for (Täring täring : täringud) {
+                if (täring.getArv() == lahter)
+                    sum += lahter;
+            }
+            return sum;
+//        } else if (lahter == 7) {
+//            for (Täring täring : täringud) {
+//                temp = täring.getArv();
+//                if ()
+//            }
+//            return sum;
+        } else
+            return 0;
+    }
+
     public static void main(String[] args) {
         prindiTabel();
         boolean viskeTulemus = täringuViskamine("00000");
+
         Scanner scanner = new Scanner(System.in);
         while (viskeTulemus) {
             System.out.print("Millised täringud säilitada? ");
             viskeTulemus = täringuViskamine(scanner.nextLine());
         }
-        System.out.println("Lõpp");
+
+        System.out.print("Millisesse lahtrisse soovite punktid sisestada? ");
+        lahter = Integer.parseInt(scanner.nextLine());
+        if (!(lahter >= 1 && lahter <= 15)) {
+            System.out.print("Palun sisestage sobiv lahtrinumber: ");
+            lahter = Integer.parseInt(scanner.nextLine());
+        }
+
+        System.out.println(punktid(lahter));
     }
 
 }

@@ -1,6 +1,6 @@
 import java.util.Random;
 
-class Täring {
+public class Täring {
 
     private static Random random = new Random();
     private int arv = 0;

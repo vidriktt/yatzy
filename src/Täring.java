@@ -1,6 +1,6 @@
 import java.util.Random;
 
-class Täring implements Comparable<Täring> {
+public class Täring implements Comparable<Täring> {
 
     private static Random random = new Random();
     private int arv = 0;

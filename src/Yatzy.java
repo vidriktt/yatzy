@@ -92,9 +92,9 @@ public class Yatzy {
                 if (täring.getArv() == lahter)
                     sum += lahter;
             }
-            kokku.add(0, (kokku.get(0) + sum));
+            kokku.set(0, (kokku.get(0) + sum));
             if (kokku.get(0) >= 63)
-                kokku.add(1, 63);
+                kokku.set(1, 50);
             return sum;
 
         /* Paar */
@@ -262,17 +262,18 @@ public class Yatzy {
                         sisend = scanner.nextLine().trim();
                     } else if (tulemus[lahter - 1] != null) {
                         System.out.println("Sellesse lahtrisse on juba number sisestatud.");
+                        sisend = " ";
                     } else break;
                 } while (true);
 
                 /* Punktide kirjapanemine */
                 punkt = punktid(lahter);
                 tulemus[lahter - 1] = punkt;
-                kokku.add(2, (kokku.get(2) + punkt));
+                kokku.set(2, (kokku.get(2) + punkt));
                 käike++;
 
             } else {
-                kokku.add(2, (kokku.get(2) + kokku.get(0) + kokku.get(1)));
+                kokku.set(2, (kokku.get(2) + kokku.get(0) + kokku.get(1)));
                 puhastaScreen();
                 prindiTabel();
 

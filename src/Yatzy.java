@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -6,6 +7,7 @@ public class Yatzy {
 
     private static Täring[] täringud = {new Täring(), new Täring(), new Täring(), new Täring(), new Täring()};
     private static Integer[] tulemus = new Integer[16];
+    private static ArrayList<Integer> kokku = new ArrayList<>(3);
     private static int käike = 0;
     private static int viskeid = 0;
 
@@ -38,6 +40,7 @@ public class Yatzy {
 
 
     private static void prindiTabel() {
+        int loend = 0;
         for (String rida : tabel) {
             if (rida.contains(".")) { // Peab ainult läbi vaatama need, millel number ees.
                 String punktid = String.valueOf(tulemus[Integer.parseInt(rida.substring(2, rida.indexOf("."))) - 1]);
@@ -45,10 +48,13 @@ public class Yatzy {
                     punktid = " ";
                 System.out.println(rida.replaceAll("%", punktid));
             } else if (rida.contains("&")) {
-                System.out.println(rida.replace('&', ' '));
-            } else {
+                String summa = String.valueOf(kokku.get(loend));
+                if (summa.equals("0"))
+                    summa = " ";
+                System.out.println(rida.replace("&", summa));
+                loend++;
+            } else
                 System.out.println(rida);
-            }
         }
         System.out.println();
     }
@@ -78,19 +84,20 @@ public class Yatzy {
 
     private static int punktid(int lahter) {
         int sum = 0;
-        int upper = 0;
         int temp = 0;
 
+        /* Ülemine sektsioon */
         if (lahter >= 1 && lahter <= 6) {
             for (Täring täring : täringud) {
                 if (täring.getArv() == lahter)
                     sum += lahter;
             }
-            upper += sum;
-            if (upper >= 63)
-                System.out.println("Saite veel 50 lisapunkti!");
+            kokku.add(0, (kokku.get(0) + sum));
+            if (kokku.get(0) >= 63)
+                kokku.add(1, 63);
             return sum;
 
+        /* Paar */
         } else if (lahter == 7) {
             for (int i = 0; i < täringud.length; i++) {
                 for (int j = i + 1; j < täringud.length; j++) {
@@ -100,6 +107,7 @@ public class Yatzy {
             }
             return sum;
 
+        /* Kaks paari */
         } else if (lahter == 8) {
             boolean leitud = false;
             int paar = 0;
@@ -121,6 +129,7 @@ public class Yatzy {
             }
             return sum;
 
+        /* Kolmik */
         } else if (lahter == 9) {
             for (int i = 0; i < täringud.length - 2; i++) {
                 for (int j = i + 1; j < täringud.length - 1; j++) {
@@ -132,6 +141,7 @@ public class Yatzy {
             }
             return sum;
 
+        /* Nelik */
         } else if (lahter == 10) {
             for (int i = 0; i < täringud.length - 2; i++) {
                 for (int j = i + 1; j < täringud.length - 1; j++) {
@@ -145,6 +155,7 @@ public class Yatzy {
             }
             return sum;
 
+        /* Väike rida ja Suur rida */
         } else if (lahter == 11 || lahter == 12) {
             Arrays.sort(täringud);
             for (int i = 1; i < täringud.length; i++) {
@@ -156,6 +167,7 @@ public class Yatzy {
             else
                 return 0;
 
+        /* Täismaja */
         } else if (lahter == 13) {
             for (int i = 0; i < täringud.length - 2; i++) {
                 for (int j = i + 1; j < täringud.length - 1; j++) {
@@ -177,12 +189,14 @@ public class Yatzy {
             }
             return sum;
 
+        /* Juhus */
         } else if (lahter == 14) {
             for (Täring i : täringud) {
                 sum += i.getArv();
             }
             return sum;
 
+        /* Yatzy */
         } else if (lahter == 15) {
             int arv = 0;
             temp = täringud[0].getArv();
@@ -196,7 +210,7 @@ public class Yatzy {
                 return 0;
 
         } else
-            return 0;
+            return 0; // Kui ei täitnud kriteeriumeid, siis lisab lahtrisse 0
     }
 
     private static void puhastaScreen() {
@@ -211,45 +225,60 @@ public class Yatzy {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         String sisend;
+        kokku.addAll(Arrays.asList(0, 0, 0));
+        int punkt;
 
         while (käike < 16) {
-            puhastaScreen();
-            prindiTabel();
 
-            /* Täringute viskamine */
-            täringuViskamine("00000");
-            while (viskeid != 3) {
-                System.out.print("Millised täringud säilitada (1 - säilitamiseks, 0 - veeretamiseks)? ");
-                sisend = scanner.nextLine().trim();
-                while (!sisend.matches("[0-1]+") || sisend.length() != 5) {
-                    System.out.print("Vigane sisend! Palun kirjtage õiged numbrid (nt 10000): ");
+            if (käike < 15) {
+                puhastaScreen();
+                prindiTabel();
+
+                /* Täringute viskamine */
+                täringuViskamine("00000");
+                while (viskeid != 3) {
+                    System.out.print("Millised täringud säilitada (1 - säilitamiseks, 0 - veeretamiseks)? ");
                     sisend = scanner.nextLine().trim();
+                    while (!sisend.matches("[0-1]+") || sisend.length() != 5) {
+                        System.out.print("Vigane sisend! Palun kirjtage õiged numbrid (nt 10000): ");
+                        sisend = scanner.nextLine().trim();
+                    }
+                    täringuViskamine(sisend);
                 }
-                täringuViskamine(sisend);
+                viskeid = 0;
+                System.out.println();
+
+                /* Lahtri numbri saavutamine */
+                System.out.print("Millisesse lahtrisse soovite punktid sisestada? ");
+                sisend = scanner.nextLine().trim();
+                int lahter;
+                do {
+                    lahter = -1;
+                    if (sisend.matches("[0-9]+")) // Kui sisend koosneb ainult numbritest.
+                        lahter = Integer.parseInt(sisend);
+
+                    if (!(0 < lahter && lahter < 16)) {
+                        System.out.print("Palun sisestage sobiv lahtrinumber: ");
+                        sisend = scanner.nextLine().trim();
+                    } else if (tulemus[lahter - 1] != null) {
+                        System.out.println("Sellesse lahtrisse on juba number sisestatud.");
+                    } else break;
+                } while (true);
+
+                /* Punktide kirjapanemine */
+                punkt = punktid(lahter);
+                tulemus[lahter - 1] = punkt;
+                kokku.add(2, (kokku.get(2) + punkt));
+                käike++;
+
+            } else {
+                kokku.add(2, (kokku.get(2) + kokku.get(0) + kokku.get(1)));
+                puhastaScreen();
+                prindiTabel();
+
+                System.out.println("Mäng on läbi!\nPalju õnne, kokku Saite " + kokku.get(2) + " punkti.");
+                break;
             }
-            viskeid = 0;
-            System.out.println();
-
-            /* Lahtri numbri saavutamine */
-            System.out.print("Millisesse lahtrisse soovite punktid sisestada? ");
-            sisend = scanner.nextLine().trim();
-            int lahter;
-            do {
-                lahter = -1;
-                if (sisend.matches("[0-9]+")) // Kui sisend koosneb ainult numbritest.
-                    lahter = Integer.parseInt(sisend);
-
-                if (!(0 < lahter && lahter < 16)) {
-                    System.out.print("Palun sisestage sobiv lahtrinumber: ");
-                    sisend = scanner.nextLine().trim();
-                } else if (tulemus[lahter - 1] != null) {
-                    System.out.println("Sellesse lahtrisse on juba number sisestatud.");
-                } else break;
-            } while (true);
-
-            /* Punktide kirjapanemine */
-            tulemus[lahter - 1] = punktid(lahter);
-            käike++;
         }
 
     }

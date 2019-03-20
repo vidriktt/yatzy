@@ -99,10 +99,11 @@ public class Yatzy {
 
         /* Paar */
         } else if (lahter == 7) {
-            for (int i = 0; i < täringud.length; i++) {
-                for (int j = i + 1; j < täringud.length; j++) {
-                    if (täringud[i].getArv() == täringud[j].getArv())
-                        sum = täringud[i].getArv() + täringud[j].getArv();
+            Arrays.sort(täringud);
+            for (int i = 4; i > 0; i--) {
+                if (täringud[i].getArv() == täringud[i - 1].getArv()) {
+                    sum = täringud[i].getArv() * 2;
+                    break;
                 }
             }
             return sum;

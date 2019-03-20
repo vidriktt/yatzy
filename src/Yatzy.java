@@ -210,6 +210,8 @@ public class Yatzy {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        String sisend;
+
         while (käike < 16) {
             puhastaScreen();
             prindiTabel();
@@ -218,7 +220,7 @@ public class Yatzy {
             täringuViskamine("00000");
             while (viskeid != 3) {
                 System.out.print("Millised täringud säilitada (1 - säilitamiseks, 0 - veeretamiseks)? ");
-                String sisend = scanner.nextLine().trim();
+                sisend = scanner.nextLine().trim();
                 while (!sisend.matches("[0-1]+") || sisend.length() != 5) {
                     System.out.print("Vigane sisend! Palun kirjtage õiged numbrid (nt 10000): ");
                     sisend = scanner.nextLine().trim();
@@ -230,13 +232,17 @@ public class Yatzy {
 
             /* Lahtri numbri saavutamine */
             System.out.print("Millisesse lahtrisse soovite punktid sisestada? ");
-            int lahter = Integer.parseInt(scanner.nextLine());
+            sisend = scanner.nextLine().trim();
+            int lahter;
             do {
+                lahter = -1;
+                if (sisend.matches("[0-9]+")) // Kui sisend koosneb ainult numbritest.
+                    lahter = Integer.parseInt(sisend);
+
                 if (!(0 < lahter && lahter < 16)) {
                     System.out.print("Palun sisestage sobiv lahtrinumber: ");
-                    lahter = Integer.parseInt(scanner.nextLine());
+                    sisend = scanner.nextLine().trim();
                 } else if (tulemus[lahter - 1] != null) {
-                    lahter = -1;
                     System.out.println("Sellesse lahtrisse on juba number sisestatud.");
                 } else break;
             } while (true);

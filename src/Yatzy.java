@@ -91,8 +91,10 @@ public class Yatzy {
                     sum += lahter;
             }
             kokku[0] += sum;
-            if (kokku[0] >= 63)
+            if (kokku[0] >= 63) { // Boonus
                 kokku[1] = 50;
+                kokku[2] += 50;
+            }
             return sum;
 
         } else if (lahter == 7) { // Paar
@@ -269,7 +271,6 @@ public class Yatzy {
             käike++;
 
         }
-        kokku[2] += kokku[0] + kokku[1];
         puhastaScreen();
         prindiTabel();
 

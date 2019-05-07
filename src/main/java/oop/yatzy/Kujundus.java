@@ -22,13 +22,15 @@ class Kujundus {
 
         pea.getColumnConstraints().add(new ColumnConstraints(160)); // Esimese rea laius
         pea.getColumnConstraints().add(new ColumnConstraints(60)); // Teise rea laius
+
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 18; j++) {
                 Pane rida;
-                if (i == 0) {
+
+                if (i == 0) { // Rida käikude nimetuste jaoks
                     rida = new HBox();
 
-                    /* Väike vahe, et tekst ei oleks vastu sina */
+                    /* Väike vahe, et tekst ei oleks vastu seina */
                     Pane vahe = new Pane();
                     vahe.setMinWidth(5);
 
@@ -74,17 +76,41 @@ class Kujundus {
         pane.setMinHeight(300);
         pane.setPadding(new Insets(0, 0, 0, 20));
 
-        HBox taringud = new HBox();
-        taringud.setSpacing(20);
-        taringud.setAlignment(Pos.CENTER);
-        taringud.getChildren().addAll(new Label("1"), new Label("2"), new Label("3"), new Label("4"), new Label("5"));
+        HBox taringuteAla = new HBox();
+        taringuteAla.setSpacing(20);
+        taringuteAla.setAlignment(Pos.CENTER);
+        taringuteAla.setVisible(false);
+        pane.setCenter(taringuteAla);
 
-        pane.setCenter(taringud);
+        Täring.taringud.forEach((k, v) -> {
+            v.setText(String.valueOf(k.getArv()));
+            taringuteAla.getChildren().add(v);
+        });
+
+        Yatzy.taringuteAla = taringuteAla;
 
         HBox nupud = new HBox();
         nupud.setSpacing(20);
         nupud.setAlignment(Pos.CENTER);
-        nupud.getChildren().addAll(new Button("asd"), new Button("asd"));
+
+        Button alustamine = new Button("Alusta mänguga!");
+        alustamine.setMinWidth(80);
+        alustamine.setOnMouseClicked(event -> Yatzy.alustaManguga());
+
+        Button veereta = new Button("Veereta");
+        veereta.setMinWidth(80);
+        veereta.setOnMouseClicked(event -> Yatzy.täringuViskamine());
+
+        Button lopetamine = new Button("Lõpeta mäng");
+        lopetamine.setMinWidth(80);
+        lopetamine.setOnMouseClicked(event -> Yatzy.lopetaManuga());
+
+        Yatzy.nuppudeAla = nupud;
+        Yatzy.alustamiseNupud.add(alustamine);
+        Yatzy.manguNupud.add(veereta);
+        Yatzy.manguNupud.add(lopetamine);
+
+        nupud.getChildren().setAll(Yatzy.alustamiseNupud);
         pane.setBottom(nupud);
 
         return pane;

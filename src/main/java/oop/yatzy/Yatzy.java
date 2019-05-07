@@ -1,33 +1,24 @@
 package oop.yatzy;
 
 import javafx.application.Application;
-import javafx.beans.value.ObservableValue;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
 
 public class Yatzy extends Application {
 
-    private static Täring[] täringud = {new Täring(), new Täring(), new Täring(), new Täring(), new Täring()};
     private static Integer[] tulemus = new Integer[16];
     private static Integer[] kokku = {0, 0, 0};
     private static int käike = 0;
     private static int viskeid = 0;
+    private static GameState gameState = GameState.WAITING;
 
     static final String[] NIMETUSED = {
             "Ühed", "Kahed", "Kolmed", "Neljad", "Viied", "Kuued",
@@ -36,30 +27,40 @@ public class Yatzy extends Application {
             "%iKokku"
     };
 
-    private static void täringuViskamine(String sisend) {
-        /* Kui täringuid ei pea enam veeretama */
-        if (sisend.equals("11111")) {
-            viskeid = 3;
-            return;
-        }
+    static Label vihje;
+    static HBox taringuteAla;
+    static HBox nuppudeAla;
+    static List<Button> alustamiseNupud = new ArrayList<>();
+    static List<Button> manguNupud = new ArrayList<>();
 
-        /* Veeretab nõutud täringud uuesti */
-        int temp = 0;
-        for (Character number : sisend.toCharArray()) {
-            if (number == '0')
-                täringud[temp].veereta();
-            temp++;
-        }
-        viskeid++;
 
-        /* Prindib kõik täringud välja */
-        System.out.print("Sinu visked: ");
-        for (Täring täring : täringud)
-            System.out.print(täring.getArv() + " ");
-        System.out.println();
+    static void alustaManguga() {
+        tulemus = new Integer[16];
+        taringuteAla.setVisible(true);
+        nuppudeAla.getChildren().setAll(manguNupud);
+        täringuViskamine();
     }
 
+    static void lopetaManuga() {
+        taringuteAla.setVisible(false);
+        nuppudeAla.getChildren().setAll(alustamiseNupud);
+    }
+
+    static void täringuViskamine() {
+        viskeid++;
+        Täring.taringud.entrySet().stream()
+                .filter(x -> x.getKey().getVeeretada())
+                .forEach((x -> {
+                    Täring k = x.getKey();
+                    k.veereta();
+                    x.getValue().setText(String.valueOf(k.getArv()));
+                }));
+    }
+
+
     private static int punktid(int lahter) {
+        // TODO Viia kõik eraldi meetoditeks
+        Täring[] täringud = (Täring[]) new TreeSet<>(Täring.taringud.keySet()).toArray();
         int sum = 0;
         int temp = 0;
 
@@ -78,7 +79,6 @@ public class Yatzy extends Application {
 
         } else if (lahter == 7) { // Paar
 
-            Arrays.sort(täringud);
             for (int i = 4; i > 0; i--) {
                 if (täringud[i].getArv() == täringud[i - 1].getArv()) {
                     sum = täringud[i].getArv() * 2;
@@ -136,8 +136,6 @@ public class Yatzy extends Application {
             return sum;
 
         } else if (lahter == 11 || lahter == 12) { // Väike rida ja Suur rida
-
-            Arrays.sort(täringud);
             for (int i = 1; i < täringud.length; i++) {
                 if (täringud[i - 1].getArv() + 1 == täringud[i].getArv())
                     sum += täringud[i - 1].getArv();

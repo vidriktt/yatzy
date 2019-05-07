@@ -15,9 +15,6 @@
 .table-grid-cell.first-row.first-column {
     -fx-background-insets: 0, 1;
 }
-.table-grid-cell.first {
-    -fx-background-color: black, white;
-}
 .table-grid-cell.second {
     -fx-background-color: black, #e3e3e3;
 }

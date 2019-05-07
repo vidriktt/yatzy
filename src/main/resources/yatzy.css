@@ -1,0 +1,23 @@
+.main-grid {
+    -fx-background-color: #F5F5F5;
+    -fx-padding: 20;
+}
+.table-grid-cell {
+    -fx-background-color: black, white;
+    -fx-background-insets: 0, 0 1 1 0;
+}
+.table-grid-cell.first-row {
+    -fx-background-insets: 0, 1 1 1 0;
+}
+.table-grid-cell.first-column {
+    -fx-background-insets: 0, 0 1 1 1;
+}
+.table-grid-cell.first-row.first-column {
+    -fx-background-insets: 0, 1;
+}
+.table-grid-cell.first {
+    -fx-background-color: black, white;
+}
+.table-grid-cell.second {
+    -fx-background-color: black, #e3e3e3;
+}

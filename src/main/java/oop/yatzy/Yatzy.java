@@ -1,8 +1,27 @@
+package oop.yatzy;
+
+import javafx.application.Application;
+import javafx.beans.value.ObservableValue;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
+import javafx.util.Callback;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class Yatzy {
+public class Yatzy extends Application {
 
     private static Täring[] täringud = {new Täring(), new Täring(), new Täring(), new Täring(), new Täring()};
     private static Integer[] tulemus = new Integer[16];
@@ -10,52 +29,12 @@ public class Yatzy {
     private static int käike = 0;
     private static int viskeid = 0;
 
-    private static String[] tabel = {
-            "\n          YATZY",
-            "┌───────────────────────┐",
-            "│ 1.  Ühed         %\t│",
-            "│ 2.  Kahed        %\t│",
-            "│ 3.  Kolmed       %\t│",
-            "│ 4.  Neljad       %\t│",
-            "│ 5.  Viied        %\t│",
-            "│ 6.  Kuued        %\t│",
-            "├───────────────────────┤",
-            "│ Summa            &\t│",
-            "│ Boonus           &\t│",
-            "├───────────────────────┤",
-            "│ 7.  Üks paar     %\t│",
-            "│ 8.  Kaks paari   %\t│",
-            "│ 9.  Kolmik       %\t│",
-            "│ 10. Nelik        %\t│",
-            "│ 11. Väike Rida   %\t│",
-            "│ 12. Suur Rida    %\t│",
-            "│ 13. Täismaja     %\t│",
-            "│ 14. Juhus        %\t│",
-            "│ 15. Yatzy!       %\t│",
-            "├───────────────────────┤",
-            "│ Kokku            &\t│",
-            "└───────────────────────┘"
+    static final String[] NIMETUSED = {
+            "Ühed", "Kahed", "Kolmed", "Neljad", "Viied", "Kuued",
+            "%iSumma", "%iBoonus",
+            "Üks paar", "Kaks paari", "Kolmik", "Nelik", "Väike rida", "Suur rida", "Täismaja", "Juhus", "Yatzy",
+            "%iKokku"
     };
-
-    private static void prindiTabel() {
-        int loend = 0;
-        for (String rida : tabel) {
-            if (rida.contains(".")) { // Peab ainult läbi vaatama need, millel number ees.
-                String punktid = String.valueOf(tulemus[Integer.parseInt(rida.substring(2, rida.indexOf("."))) - 1]);
-                if (punktid.equals("null")) // Kui selle rea punkte ei leidu.
-                    punktid = " ";
-                System.out.println(rida.replaceAll("%", punktid));
-            } else if (rida.contains("&")) {
-                String summa = String.valueOf(kokku[loend]);
-                if (summa.equals("0"))
-                    summa = " ";
-                System.out.println(rida.replace("&", summa));
-                loend++;
-            } else
-                System.out.println(rida);
-        }
-        System.out.println();
-    }
 
     private static void täringuViskamine(String sisend) {
         /* Kui täringuid ei pea enam veeretama */
@@ -214,68 +193,78 @@ public class Yatzy {
             return 0; // Kui ei täitnud kriteeriumeid, siis lisab lahtrisse 0
     }
 
-    private static void puhastaScreen() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-        try {
-            new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-        } catch (InterruptedException | IOException ignored) {
-        }
+    @Override
+    public void start(Stage lava) {
+        BorderPane pea = new BorderPane();
+        pea.getStyleClass().add("main-grid");
+
+        pea.setLeft(Kujundus.looTabel());
+        pea.setRight(Kujundus.looNupud());
+
+        Scene stseen = new Scene(pea);
+        stseen.getStylesheets().add("yatzy.css");
+
+        lava.setScene(stseen);
+        lava.setResizable(false);
+        lava.setTitle("Yatzy");
+        lava.show();
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        String sisend;
-        int punkt;
-
-        while (käike < 15) {
-            puhastaScreen();
-            prindiTabel();
-
-            /* Täringute viskamine */
-            täringuViskamine("00000");
-            while (viskeid != 3) {
-                System.out.print("Millised täringud säilitada (1 - säilitamiseks, 0 - veeretamiseks)? ");
-                sisend = scanner.nextLine().trim();
-                while (!sisend.matches("[0-1]+") || sisend.length() != 5) {
-                    System.out.print("Vigane sisend! Palun kirjtage õiged numbrid (nt 10000): ");
-                    sisend = scanner.nextLine().trim();
-                }
-                täringuViskamine(sisend);
-            }
-            viskeid = 0;
-            System.out.println();
-
-            /* Lahtri numbri saavutamine */
-            System.out.print("Millisesse lahtrisse soovite punktid sisestada? ");
-            sisend = scanner.nextLine().trim();
-            int lahter;
-            do {
-                lahter = -1;
-                if (sisend.matches("[0-9]+")) // Kui sisend koosneb ainult numbritest.
-                    lahter = Integer.parseInt(sisend);
-
-                if (!(0 < lahter && lahter < 16)) {
-                    System.out.print("Palun sisestage sobiv lahtrinumber: ");
-                    sisend = scanner.nextLine().trim();
-                } else if (tulemus[lahter - 1] != null) {
-                    System.out.println("Sellesse lahtrisse on juba number sisestatud.");
-                    sisend = " ";
-                } else break;
-            } while (true);
-
-            /* Punktide kirjapanemine */
-            punkt = punktid(lahter);
-            tulemus[lahter - 1] = punkt;
-            kokku[2] += punkt;
-            käike++;
-
-        }
-        puhastaScreen();
-        prindiTabel();
-
-        System.out.println("Mäng on läbi!\nPalju õnne, kokku Saite " + kokku[2] + " punkti.");
+        launch(args);
+//        Scanner scanner = new Scanner(System.in);
+//        String sisend;
+//        int punkt;
+//
+//        while (käike < 15) {
+//            puhastaScreen();
+//            prindiTabel();
+//
+//            /* Täringute viskamine */
+//            täringuViskamine("00000");
+//            while (viskeid != 3) {
+//                System.out.print("Millised täringud säilitada (1 - säilitamiseks, 0 - veeretamiseks)? ");
+//                sisend = scanner.nextLine().trim();
+//                while (!sisend.matches("[0-1]+") || sisend.length() != 5) {
+//                    System.out.print("Vigane sisend! Palun kirjtage õiged numbrid (nt 10000): ");
+//                    sisend = scanner.nextLine().trim();
+//                }
+//                täringuViskamine(sisend);
+//            }
+//            viskeid = 0;
+//            System.out.println();
+//
+//            /* Lahtri numbri saavutamine */
+//            System.out.print("Millisesse lahtrisse soovite punktid sisestada? ");
+//            sisend = scanner.nextLine().trim();
+//            int lahter;
+//            do {
+//                lahter = -1;
+//                if (sisend.matches("[0-9]+")) // Kui sisend koosneb ainult numbritest.
+//                    lahter = Integer.parseInt(sisend);
+//
+//                if (!(0 < lahter && lahter < 16)) {
+//                    System.out.print("Palun sisestage sobiv lahtrinumber: ");
+//                    sisend = scanner.nextLine().trim();
+//                } else if (tulemus[lahter - 1] != null) {
+//                    System.out.println("Sellesse lahtrisse on juba number sisestatud.");
+//                    sisend = " ";
+//                } else break;
+//            } while (true);
+//
+//            /* Punktide kirjapanemine */
+//            punkt = punktid(lahter);
+//            tulemus[lahter - 1] = punkt;
+//            kokku[2] += punkt;
+//            käike++;
+//
+//        }
+//        puhastaScreen();
+//        prindiTabel();
+//
+//        System.out.println("Mäng on läbi!\nPalju õnne, kokku Saite " + kokku[2] + " punkti.");
     }
+
 
 }
 

@@ -1,3 +1,5 @@
+package oop.yatzy;
+
 import java.util.Random;
 
 public class Täring implements Comparable<Täring> {

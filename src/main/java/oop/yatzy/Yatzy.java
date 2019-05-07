@@ -18,7 +18,6 @@ public class Yatzy extends Application {
     private static Integer[] kokku = {0, 0, 0};
     private static int käike = 0;
     private static int viskeid = 0;
-    private static GameState gameState = GameState.WAITING;
 
     static final String[] NIMETUSED = {
             "Ühed", "Kahed", "Kolmed", "Neljad", "Viied", "Kuued",

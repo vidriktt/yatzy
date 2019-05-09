@@ -2,7 +2,7 @@ package oop.yatzy;
 
 import javafx.scene.control.Label;
 
-public class TaringuLabel extends Label {
+public class TäringuteLabel extends Label {
 
     public void setInt(int x) {
         setText(String.valueOf(x));

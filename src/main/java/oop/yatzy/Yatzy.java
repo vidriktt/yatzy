@@ -23,13 +23,13 @@ public class Yatzy extends Application {
             "%iKokku"
     };
 
-    private static HBox taringuteAla;
+    private static HBox täringuteAla;
     private static HBox nuppudeAla;
     private static List<Button> alustamiseNupud = new ArrayList<>();
-    private static List<Button> manguNupud = new ArrayList<>();
+    private static List<Button> mänguNupud = new ArrayList<>();
 
-    private static Täring[] taringud = new Täring[5];
-    private static TaringuLabel[] tulemus = new TaringuLabel[18];
+    private static Täring[] täringud = new Täring[5];
+    private static TäringuteLabel[] tulemus = new TäringuteLabel[18];
 
     private static int käike = 0;
     private static int viskeid = 0;
@@ -37,29 +37,29 @@ public class Yatzy extends Application {
 
     private static void alustaManguga() {
         restartMang();
-        manguNupud.get(0).setVisible(true);
-        taringuteAla.setVisible(true);
-        nuppudeAla.getChildren().setAll(manguNupud);
+        mänguNupud.get(0).setVisible(true);
+        täringuteAla.setVisible(true);
+        nuppudeAla.getChildren().setAll(mänguNupud);
         veeretaTäringud(true);
     }
 
     private static void lopetaManuga() {
         viskeid = 0;
-        taringuteAla.setVisible(false);
+        täringuteAla.setVisible(false);
         nuppudeAla.getChildren().setAll(alustamiseNupud);
     }
 
     private static void restartMang() {
-        for (int i = 0; i < taringud.length; i++) {
-            if (taringud[i] == null)
-                taringud[i] = new Täring();
+        for (int i = 0; i < täringud.length; i++) {
+            if (täringud[i] == null)
+                täringud[i] = new Täring();
             else
-                taringud[i].setVeeretada(true);
+                täringud[i].setVeeretada(true);
         }
 
         for (int i = 0; i < tulemus.length; i++) {
             if (tulemus[i] == null)
-                tulemus[i] = new TaringuLabel();
+                tulemus[i] = new TäringuteLabel();
             else
                 tulemus[i].setText("");
         }
@@ -67,20 +67,20 @@ public class Yatzy extends Application {
 
     private static void veeretaTäringud(boolean koik) {
         viskeid++;
-        for (Täring taring : taringud)
+        for (Täring taring : täringud)
             if (taring.getVeeretada() || koik)
                 taring.veereta();
     }
 
 
     private static int punktid(int lahter) {
-        Arrays.sort(taringud);
+        Arrays.sort(täringud);
         int sum = 0;
         int temp = 0;
 
         if (lahter < 6) { // Ülemine sektsioon
             lahter++;
-            for (Täring täring : taringud) {
+            for (Täring täring : täringud) {
                 if (täring.getArv() == lahter)
                     sum += lahter;
             }
@@ -93,8 +93,8 @@ public class Yatzy extends Application {
         } else if (lahter == 8) { // Paar
 
             for (int i = 4; i > 0; i--) {
-                if (taringud[i].getArv() == taringud[i - 1].getArv()) {
-                    sum = taringud[i].getArv() * 2;
+                if (täringud[i].getArv() == täringud[i - 1].getArv()) {
+                    sum = täringud[i].getArv() * 2;
                     break;
                 }
             }
@@ -104,15 +104,15 @@ public class Yatzy extends Application {
             boolean leitud = false;
             int paar = 0;
 
-            for (int i = 0; i < taringud.length - 1; i++) {
-                if (taringud[i].getArv() == paar)
+            for (int i = 0; i < täringud.length - 1; i++) {
+                if (täringud[i].getArv() == paar)
                     continue;
-                for (int j = i + 1; j < taringud.length; j++) {
-                    if (taringud[i].getArv() == taringud[j].getArv()) {
-                        if (taringud[i].getArv() != paar) {
+                for (int j = i + 1; j < täringud.length; j++) {
+                    if (täringud[i].getArv() == täringud[j].getArv()) {
+                        if (täringud[i].getArv() != paar) {
                             if (leitud)
-                                sum = (paar + taringud[i].getArv()) * 2;
-                            paar = taringud[i].getArv();
+                                sum = (paar + täringud[i].getArv()) * 2;
+                            paar = täringud[i].getArv();
                             leitud = true;
                             break;
                         }
@@ -122,48 +122,48 @@ public class Yatzy extends Application {
 
         } else if (lahter == 10) { // Kolmik
 
-            for (int i = 0; i < taringud.length - 2; i++) {
-                for (int j = i + 1; j < taringud.length - 1; j++) {
-                    for (int k = j + 1; k < taringud.length; k++) {
-                        if (taringud[i].getArv() == taringud[j].getArv() && taringud[j].getArv() == taringud[k].getArv())
-                            sum = taringud[i].getArv() + taringud[j].getArv() + taringud[k].getArv();
+            for (int i = 0; i < täringud.length - 2; i++) {
+                for (int j = i + 1; j < täringud.length - 1; j++) {
+                    for (int k = j + 1; k < täringud.length; k++) {
+                        if (täringud[i].getArv() == täringud[j].getArv() && täringud[j].getArv() == täringud[k].getArv())
+                            sum = täringud[i].getArv() + täringud[j].getArv() + täringud[k].getArv();
                     }
                 }
             }
         } else if (lahter == 11) { // Nelik
 
-            for (int i = 0; i < taringud.length - 2; i++) {
-                for (int j = i + 1; j < taringud.length - 1; j++) {
-                    for (int k = j + 1; k < taringud.length; k++) {
-                        for (int l = k + 1; l < taringud.length; l++) {
-                            if (taringud[i].getArv() == taringud[j].getArv() && taringud[j].getArv() == taringud[k].getArv() && taringud[k].getArv() == taringud[l].getArv())
-                                sum = taringud[i].getArv() + taringud[j].getArv() + taringud[k].getArv() + taringud[l].getArv();
+            for (int i = 0; i < täringud.length - 2; i++) {
+                for (int j = i + 1; j < täringud.length - 1; j++) {
+                    for (int k = j + 1; k < täringud.length; k++) {
+                        for (int l = k + 1; l < täringud.length; l++) {
+                            if (täringud[i].getArv() == täringud[j].getArv() && täringud[j].getArv() == täringud[k].getArv() && täringud[k].getArv() == täringud[l].getArv())
+                                sum = täringud[i].getArv() + täringud[j].getArv() + täringud[k].getArv() + täringud[l].getArv();
                         }
                     }
                 }
             }
 
         } else if (lahter == 12 || lahter == 13) { // Väike rida ja Suur rida
-            for (int i = 1; i < taringud.length; i++) {
-                if (taringud[i - 1].getArv() + 1 == taringud[i].getArv())
-                    sum += taringud[i - 1].getArv();
+            for (int i = 1; i < täringud.length; i++) {
+                if (täringud[i - 1].getArv() + 1 == täringud[i].getArv())
+                    sum += täringud[i - 1].getArv();
             }
 
             if (sum == 10 || sum == 14)
-                sum += taringud[4].getArv();
+                sum += täringud[4].getArv();
             else
                 sum = 0;
 
         } else if (lahter == 14) { // Täismaja
 
-            for (int i = 0; i < taringud.length - 2; i++) {
-                for (int j = i + 1; j < taringud.length - 1; j++) {
-                    for (int k = j + 1; k < taringud.length; k++) {
-                        if (taringud[i].getArv() == taringud[j].getArv() && taringud[j].getArv() == taringud[k].getArv()) {
-                            sum = taringud[i].getArv() + taringud[j].getArv() + taringud[k].getArv();
+            for (int i = 0; i < täringud.length - 2; i++) {
+                for (int j = i + 1; j < täringud.length - 1; j++) {
+                    for (int k = j + 1; k < täringud.length; k++) {
+                        if (täringud[i].getArv() == täringud[j].getArv() && täringud[j].getArv() == täringud[k].getArv()) {
+                            sum = täringud[i].getArv() + täringud[j].getArv() + täringud[k].getArv();
                             int[] tempL = new int[2];
-                            for (Täring täring : taringud) {
-                                if (!(täring.getArv() == taringud[i].getArv())) {
+                            for (Täring täring : täringud) {
+                                if (!(täring.getArv() == täringud[i].getArv())) {
                                     tempL[temp] = täring.getArv();
                                     temp++;
                                 }
@@ -177,16 +177,16 @@ public class Yatzy extends Application {
 
         } else if (lahter == 15) { // Juhus
 
-            for (Täring i : taringud) {
+            for (Täring i : täringud) {
                 sum += i.getArv();
             }
 
         } else if (lahter == 16) { // Yatzy
 
             int arv = 0;
-            temp = taringud[0].getArv();
-            for (int i = 1; i < taringud.length; i++) {
-                if (temp == taringud[i].getArv())
+            temp = täringud[0].getArv();
+            for (int i = 1; i < täringud.length; i++) {
+                if (temp == täringud[i].getArv())
                     arv++;
             }
             if (arv == 4)
@@ -228,7 +228,7 @@ public class Yatzy extends Application {
 
                     rida.getChildren().addAll(vahe, lahter);
                 } else if (i == 1) {
-                    TaringuLabel lahter = tulemus[j];
+                    TäringuteLabel lahter = tulemus[j];
 
                     if (j != 6 && j != 7 && j != 17) {
                         int finalJ = j;
@@ -238,7 +238,7 @@ public class Yatzy extends Application {
                                 käike++;
                                 lahter.setInt(punktid(finalJ));
                                 veeretaTäringud(true);
-                                manguNupud.get(0).setVisible(true);
+                                mänguNupud.get(0).setVisible(true);
                                 if (käike >= 15) {
                                     lopetaManuga();
                                 }
@@ -284,10 +284,10 @@ public class Yatzy extends Application {
         taringuteAla.setVisible(false);
         pane.setCenter(taringuteAla);
 
-        for (Täring taring : taringud)
+        for (Täring taring : täringud)
             taringuteAla.getChildren().add(taring.getLabel());
 
-        Yatzy.taringuteAla = taringuteAla;
+        Yatzy.täringuteAla = taringuteAla;
 
         HBox nupud = new HBox();
         nupud.setSpacing(20);
@@ -311,8 +311,8 @@ public class Yatzy extends Application {
 
         Yatzy.nuppudeAla = nupud;
         Yatzy.alustamiseNupud.add(alustamine);
-        Yatzy.manguNupud.add(veereta);
-        Yatzy.manguNupud.add(lopetamine);
+        Yatzy.mänguNupud.add(veereta);
+        Yatzy.mänguNupud.add(lopetamine);
 
         nupud.getChildren().setAll(Yatzy.alustamiseNupud);
         pane.setBottom(nupud);

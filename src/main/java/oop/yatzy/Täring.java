@@ -9,7 +9,7 @@ public class Täring implements Comparable<Täring> {
     private static Random random = new Random();
 
     private boolean veeretada = true;
-    private TaringuLabel label = new TaringuLabel();
+    private TäringuteLabel label = new TäringuteLabel();
 
     public Täring() {
         veereta();

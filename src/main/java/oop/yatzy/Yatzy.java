@@ -1,159 +1,169 @@
 package oop.yatzy;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
 public class Yatzy extends Application {
 
-    private static Integer[] tulemus = new Integer[16];
-    private static Integer[] kokku = {0, 0, 0};
-    private static int käike = 0;
-    private static int viskeid = 0;
-
-    static final String[] NIMETUSED = {
+    private static final String[] NIMETUSED = {
             "Ühed", "Kahed", "Kolmed", "Neljad", "Viied", "Kuued",
             "%iSumma", "%iBoonus",
             "Üks paar", "Kaks paari", "Kolmik", "Nelik", "Väike rida", "Suur rida", "Täismaja", "Juhus", "Yatzy",
             "%iKokku"
     };
 
-    static Label vihje;
-    static HBox taringuteAla;
-    static HBox nuppudeAla;
-    static List<Button> alustamiseNupud = new ArrayList<>();
-    static List<Button> manguNupud = new ArrayList<>();
+    private static HBox taringuteAla;
+    private static HBox nuppudeAla;
+    private static List<Button> alustamiseNupud = new ArrayList<>();
+    private static List<Button> manguNupud = new ArrayList<>();
+
+    private static Täring[] taringud = new Täring[5];
+    private static TaringuLabel[] tulemus = new TaringuLabel[18];
+
+    private static int käike = 0;
+    private static int viskeid = 0;
 
 
-    static void alustaManguga() {
-        tulemus = new Integer[16];
+    private static void alustaManguga() {
+        restartMang();
+        manguNupud.get(0).setVisible(true);
         taringuteAla.setVisible(true);
         nuppudeAla.getChildren().setAll(manguNupud);
-        täringuViskamine();
+        veeretaTäringud(true);
     }
 
-    static void lopetaManuga() {
+    private static void lopetaManuga() {
+        viskeid = 0;
         taringuteAla.setVisible(false);
         nuppudeAla.getChildren().setAll(alustamiseNupud);
     }
 
-    static void täringuViskamine() {
+    private static void restartMang() {
+        for (int i = 0; i < taringud.length; i++) {
+            if (taringud[i] == null)
+                taringud[i] = new Täring();
+            else
+                taringud[i].setVeeretada(true);
+        }
+
+        for (int i = 0; i < tulemus.length; i++) {
+            if (tulemus[i] == null)
+                tulemus[i] = new TaringuLabel();
+            else
+                tulemus[i].setText("");
+        }
+    }
+
+    private static void veeretaTäringud(boolean koik) {
         viskeid++;
-        Täring.taringud.entrySet().stream()
-                .filter(x -> x.getKey().getVeeretada())
-                .forEach((x -> {
-                    Täring k = x.getKey();
-                    k.veereta();
-                    x.getValue().setText(String.valueOf(k.getArv()));
-                }));
+        for (Täring taring : taringud)
+            if (taring.getVeeretada() || koik)
+                taring.veereta();
     }
 
 
     private static int punktid(int lahter) {
-        // TODO Viia kõik eraldi meetoditeks
-        Täring[] täringud = (Täring[]) new TreeSet<>(Täring.taringud.keySet()).toArray();
+        Arrays.sort(taringud);
         int sum = 0;
         int temp = 0;
 
-        if (lahter >= 1 && lahter <= 6) { // Ülemine sektsioon
-
-            for (Täring täring : täringud) {
+        if (lahter < 6) { // Ülemine sektsioon
+            lahter++;
+            for (Täring täring : taringud) {
                 if (täring.getArv() == lahter)
                     sum += lahter;
             }
-            kokku[0] += sum;
-            if (kokku[0] >= 63) { // Boonus
-                kokku[1] = 50;
-                kokku[2] += 50;
-            }
-            return sum;
 
-        } else if (lahter == 7) { // Paar
+            tulemus[6].addInt(sum);
+            if (tulemus[6].getInt() >= 63) { // Boonus
+                tulemus[7].setInt(50);
+                tulemus[17].addInt(50);
+            }
+        } else if (lahter == 8) { // Paar
 
             for (int i = 4; i > 0; i--) {
-                if (täringud[i].getArv() == täringud[i - 1].getArv()) {
-                    sum = täringud[i].getArv() * 2;
+                if (taringud[i].getArv() == taringud[i - 1].getArv()) {
+                    sum = taringud[i].getArv() * 2;
                     break;
                 }
             }
-            return sum;
 
-        } else if (lahter == 8) { // Kaks paari
+        } else if (lahter == 9) { // Kaks paari
 
             boolean leitud = false;
             int paar = 0;
 
-            for (int i = 0; i < täringud.length - 1; i++) {
-                if (täringud[i].getArv() == paar)
+            for (int i = 0; i < taringud.length - 1; i++) {
+                if (taringud[i].getArv() == paar)
                     continue;
-                for (int j = i + 1; j < täringud.length; j++) {
-                    if (täringud[i].getArv() == täringud[j].getArv()) {
-                        if (täringud[i].getArv() != paar) {
+                for (int j = i + 1; j < taringud.length; j++) {
+                    if (taringud[i].getArv() == taringud[j].getArv()) {
+                        if (taringud[i].getArv() != paar) {
                             if (leitud)
-                                sum = (paar + täringud[i].getArv()) * 2;
-                            paar = täringud[i].getArv();
+                                sum = (paar + taringud[i].getArv()) * 2;
+                            paar = taringud[i].getArv();
                             leitud = true;
                             break;
                         }
                     }
                 }
             }
-            return sum;
 
-        } else if (lahter == 9) { // Kolmik
+        } else if (lahter == 10) { // Kolmik
 
-            for (int i = 0; i < täringud.length - 2; i++) {
-                for (int j = i + 1; j < täringud.length - 1; j++) {
-                    for (int k = j + 1; k < täringud.length; k++) {
-                        if (täringud[i].getArv() == täringud[j].getArv() && täringud[j].getArv() == täringud[k].getArv())
-                            sum = täringud[i].getArv() + täringud[j].getArv() + täringud[k].getArv();
+            for (int i = 0; i < taringud.length - 2; i++) {
+                for (int j = i + 1; j < taringud.length - 1; j++) {
+                    for (int k = j + 1; k < taringud.length; k++) {
+                        if (taringud[i].getArv() == taringud[j].getArv() && taringud[j].getArv() == taringud[k].getArv())
+                            sum = taringud[i].getArv() + taringud[j].getArv() + taringud[k].getArv();
                     }
                 }
             }
-            return sum;
+        } else if (lahter == 11) { // Nelik
 
-        } else if (lahter == 10) { // Nelik
-
-            for (int i = 0; i < täringud.length - 2; i++) {
-                for (int j = i + 1; j < täringud.length - 1; j++) {
-                    for (int k = j + 1; k < täringud.length; k++) {
-                        for (int l = k + 1; l < täringud.length; l++) {
-                            if (täringud[i].getArv() == täringud[j].getArv() && täringud[j].getArv() == täringud[k].getArv() && täringud[k].getArv() == täringud[l].getArv())
-                                sum = täringud[i].getArv() + täringud[j].getArv() + täringud[k].getArv() + täringud[l].getArv();
+            for (int i = 0; i < taringud.length - 2; i++) {
+                for (int j = i + 1; j < taringud.length - 1; j++) {
+                    for (int k = j + 1; k < taringud.length; k++) {
+                        for (int l = k + 1; l < taringud.length; l++) {
+                            if (taringud[i].getArv() == taringud[j].getArv() && taringud[j].getArv() == taringud[k].getArv() && taringud[k].getArv() == taringud[l].getArv())
+                                sum = taringud[i].getArv() + taringud[j].getArv() + taringud[k].getArv() + taringud[l].getArv();
                         }
                     }
                 }
             }
-            return sum;
 
-        } else if (lahter == 11 || lahter == 12) { // Väike rida ja Suur rida
-            for (int i = 1; i < täringud.length; i++) {
-                if (täringud[i - 1].getArv() + 1 == täringud[i].getArv())
-                    sum += täringud[i - 1].getArv();
+        } else if (lahter == 12 || lahter == 13) { // Väike rida ja Suur rida
+            for (int i = 1; i < taringud.length; i++) {
+                if (taringud[i - 1].getArv() + 1 == taringud[i].getArv())
+                    sum += taringud[i - 1].getArv();
             }
+
             if (sum == 10 || sum == 14)
-                return sum + täringud[4].getArv();
+                sum += taringud[4].getArv();
             else
-                return 0;
+                sum = 0;
 
-        } else if (lahter == 13) { // Täismaja
+        } else if (lahter == 14) { // Täismaja
 
-            for (int i = 0; i < täringud.length - 2; i++) {
-                for (int j = i + 1; j < täringud.length - 1; j++) {
-                    for (int k = j + 1; k < täringud.length; k++) {
-                        if (täringud[i].getArv() == täringud[j].getArv() && täringud[j].getArv() == täringud[k].getArv()) {
-                            sum = täringud[i].getArv() + täringud[j].getArv() + täringud[k].getArv();
+            for (int i = 0; i < taringud.length - 2; i++) {
+                for (int j = i + 1; j < taringud.length - 1; j++) {
+                    for (int k = j + 1; k < taringud.length; k++) {
+                        if (taringud[i].getArv() == taringud[j].getArv() && taringud[j].getArv() == taringud[k].getArv()) {
+                            sum = taringud[i].getArv() + taringud[j].getArv() + taringud[k].getArv();
                             int[] tempL = new int[2];
-                            for (Täring täring : täringud) {
-                                if (!(täring.getArv() == täringud[i].getArv())) {
+                            for (Täring täring : taringud) {
+                                if (!(täring.getArv() == taringud[i].getArv())) {
                                     tempL[temp] = täring.getArv();
                                     temp++;
                                 }
@@ -164,30 +174,150 @@ public class Yatzy extends Application {
                     }
                 }
             }
-            return sum;
 
-        } else if (lahter == 14) { // Juhus
+        } else if (lahter == 15) { // Juhus
 
-            for (Täring i : täringud) {
+            for (Täring i : taringud) {
                 sum += i.getArv();
             }
-            return sum;
 
-        } else if (lahter == 15) { // Yatzy
+        } else if (lahter == 16) { // Yatzy
 
             int arv = 0;
-            temp = täringud[0].getArv();
-            for (int i = 1; i < täringud.length; i++) {
-                if (temp == täringud[i].getArv())
+            temp = taringud[0].getArv();
+            for (int i = 1; i < taringud.length; i++) {
+                if (temp == taringud[i].getArv())
                     arv++;
             }
             if (arv == 4)
-                return 50;
+                sum = 50;
             else
-                return 0;
+                sum = 0;
 
-        } else
-            return 0; // Kui ei täitnud kriteeriumeid, siis lisab lahtrisse 0
+        }
+        tulemus[17].addInt(sum);
+        return sum;
+    }
+
+    private static Pane looTabeliAla() {
+        GridPane pea = new GridPane();
+
+        pea.getColumnConstraints().add(new ColumnConstraints(160)); // Esimese rea laius
+        pea.getColumnConstraints().add(new ColumnConstraints(60)); // Teise rea laius
+
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 18; j++) {
+                Pane rida = new HBox();
+
+                if (i == 0) { // Rida käikude nimetuste jaoks
+                    /* Väike vahe, et tekst ei oleks vastu seina */
+                    Pane vahe = new Pane();
+                    vahe.setMinWidth(5);
+
+                    Label lahter = new Label(Yatzy.NIMETUSED[j]);
+
+                    /* Fonti lisamine */
+                    Font font;
+                    if (lahter.getText().startsWith("%i")) {
+                        font = Font.font("System", FontPosture.ITALIC, 12.0);
+                        lahter.setText(lahter.getText().substring(2));
+                    } else {
+                        font = Font.font("System", FontWeight.BOLD, 12.0);
+                    }
+                    lahter.setFont(font);
+
+                    rida.getChildren().addAll(vahe, lahter);
+                } else if (i == 1) {
+                    TaringuLabel lahter = tulemus[j];
+
+                    if (j != 6 && j != 7 && j != 17) {
+                        int finalJ = j;
+                        rida.setOnMouseClicked(event -> {
+                            if (viskeid != 0 && lahter.getText().equals("")) {
+                                viskeid = 0;
+                                käike++;
+                                lahter.setInt(punktid(finalJ));
+                                veeretaTäringud(true);
+                                manguNupud.get(0).setVisible(true);
+                                if (käike >= 15) {
+                                    lopetaManuga();
+                                }
+                            }
+                        });
+                    }
+
+                    Pane vahe1 = new Pane();
+                    Pane vahe2 = new Pane();
+                    vahe2.setMinWidth(5);
+
+                    rida.getChildren().addAll(vahe1, lahter, vahe2);
+                    HBox.setHgrow(vahe1, Priority.ALWAYS);
+                }
+
+                rida.getStyleClass().add("table-grid-cell");
+
+                if (i == 0)
+                    rida.getStyleClass().add("first-column");
+                if (j == 0)
+                    rida.getStyleClass().add("first-row");
+                if (j % 2 == 0)
+                    rida.getStyleClass().add("second");
+
+                //TODO Events
+
+                pea.add(rida, i, j);
+            }
+        }
+
+        return pea;
+    }
+
+    private static Pane looNuppudeJaTaringute() {
+        BorderPane pane = new BorderPane();
+        pane.setMinWidth(300);
+        pane.setMinHeight(300);
+        pane.setPadding(new Insets(0, 0, 0, 20));
+
+        HBox taringuteAla = new HBox();
+        taringuteAla.setSpacing(20);
+        taringuteAla.setAlignment(Pos.CENTER);
+        taringuteAla.setVisible(false);
+        pane.setCenter(taringuteAla);
+
+        for (Täring taring : taringud)
+            taringuteAla.getChildren().add(taring.getLabel());
+
+        Yatzy.taringuteAla = taringuteAla;
+
+        HBox nupud = new HBox();
+        nupud.setSpacing(20);
+        nupud.setAlignment(Pos.CENTER);
+
+        Button alustamine = new Button("Alusta mänguga!");
+        alustamine.setMinWidth(80);
+        alustamine.setOnMouseClicked(event -> Yatzy.alustaManguga());
+
+        Button veereta = new Button("Veereta");
+        veereta.setMinWidth(80);
+        veereta.setOnMouseClicked(event -> {
+            Yatzy.veeretaTäringud(false);
+            if (viskeid >= 3)
+                veereta.setVisible(false);
+        });
+
+        Button lopetamine = new Button("Lõpeta mäng");
+        lopetamine.setMinWidth(80);
+        lopetamine.setOnMouseClicked(event -> Yatzy.lopetaManuga());
+
+        Yatzy.nuppudeAla = nupud;
+        Yatzy.alustamiseNupud.add(alustamine);
+        Yatzy.manguNupud.add(veereta);
+        Yatzy.manguNupud.add(lopetamine);
+
+        nupud.getChildren().setAll(Yatzy.alustamiseNupud);
+        pane.setBottom(nupud);
+
+        return pane;
     }
 
     @Override
@@ -195,8 +325,8 @@ public class Yatzy extends Application {
         BorderPane pea = new BorderPane();
         pea.getStyleClass().add("main-grid");
 
-        pea.setLeft(Kujundus.looTabel());
-        pea.setRight(Kujundus.looNupud());
+        pea.setLeft(looTabeliAla());
+        pea.setRight(looNuppudeJaTaringute());
 
         Scene stseen = new Scene(pea);
         stseen.getStylesheets().add("yatzy.css");
@@ -208,58 +338,8 @@ public class Yatzy extends Application {
     }
 
     public static void main(String[] args) {
+        restartMang();
         launch(args);
-//        Scanner scanner = new Scanner(System.in);
-//        String sisend;
-//        int punkt;
-//
-//        while (käike < 15) {
-//            puhastaScreen();
-//            prindiTabel();
-//
-//            /* Täringute viskamine */
-//            täringuViskamine("00000");
-//            while (viskeid != 3) {
-//                System.out.print("Millised täringud säilitada (1 - säilitamiseks, 0 - veeretamiseks)? ");
-//                sisend = scanner.nextLine().trim();
-//                while (!sisend.matches("[0-1]+") || sisend.length() != 5) {
-//                    System.out.print("Vigane sisend! Palun kirjtage õiged numbrid (nt 10000): ");
-//                    sisend = scanner.nextLine().trim();
-//                }
-//                täringuViskamine(sisend);
-//            }
-//            viskeid = 0;
-//            System.out.println();
-//
-//            /* Lahtri numbri saavutamine */
-//            System.out.print("Millisesse lahtrisse soovite punktid sisestada? ");
-//            sisend = scanner.nextLine().trim();
-//            int lahter;
-//            do {
-//                lahter = -1;
-//                if (sisend.matches("[0-9]+")) // Kui sisend koosneb ainult numbritest.
-//                    lahter = Integer.parseInt(sisend);
-//
-//                if (!(0 < lahter && lahter < 16)) {
-//                    System.out.print("Palun sisestage sobiv lahtrinumber: ");
-//                    sisend = scanner.nextLine().trim();
-//                } else if (tulemus[lahter - 1] != null) {
-//                    System.out.println("Sellesse lahtrisse on juba number sisestatud.");
-//                    sisend = " ";
-//                } else break;
-//            } while (true);
-//
-//            /* Punktide kirjapanemine */
-//            punkt = punktid(lahter);
-//            tulemus[lahter - 1] = punkt;
-//            kokku[2] += punkt;
-//            käike++;
-//
-//        }
-//        puhastaScreen();
-//        prindiTabel();
-//
-//        System.out.println("Mäng on läbi!\nPalju õnne, kokku Saite " + kokku[2] + " punkti.");
     }
 
 

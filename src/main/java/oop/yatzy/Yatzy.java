@@ -217,14 +217,12 @@ public class Yatzy extends Application {
                     Label lahter = new Label(Yatzy.NIMETUSED[j]);
 
                     /* Fonti lisamine */
-                    Font font;
                     if (lahter.getText().startsWith("%i")) {
-                        font = Font.font("System", FontPosture.ITALIC, 12.0);
+                        lahter.setStyle("-fx-font: italic 9pt \"Arial\";");
                         lahter.setText(lahter.getText().substring(2));
                     } else {
-                        font = Font.font("System", FontWeight.BOLD, 12.0);
+                        lahter.setStyle("-fx-font: bold 9pt \"Arial\";");
                     }
-                    lahter.setFont(font);
 
                     rida.getChildren().addAll(vahe, lahter);
                 } else if (i == 1) {
@@ -332,7 +330,7 @@ public class Yatzy extends Application {
         stseen.getStylesheets().add("yatzy.css");
 
         lava.setScene(stseen);
-        lava.setResizable(false);
+        lava.setResizable(true);
         lava.setTitle("Yatzy");
         lava.show();
     }
@@ -341,7 +339,6 @@ public class Yatzy extends Application {
         restartMang();
         launch(args);
     }
-
 
 }
 

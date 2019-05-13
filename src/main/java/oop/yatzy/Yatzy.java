@@ -45,6 +45,7 @@ public class Yatzy extends Application {
 
     private static void lopetaManuga() {
         viskeid = 0;
+        käike = 0;
         täringuteAla.setVisible(false);
         nuppudeAla.getChildren().setAll(alustamiseNupud);
     }

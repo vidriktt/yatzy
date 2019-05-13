@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -23,6 +24,7 @@ public class Yatzy extends Application {
             "%iKokku"
     };
 
+    private static Label vihje;
     private static HBox täringuteAla;
     private static HBox nuppudeAla;
     private static List<Button> alustamiseNupud = new ArrayList<>();
@@ -37,6 +39,7 @@ public class Yatzy extends Application {
 
     private static void alustaManguga() {
         restartMang();
+        vihje.setVisible(true);
         mänguNupud.get(0).setVisible(true);
         täringuteAla.setVisible(true);
         nuppudeAla.getChildren().setAll(mänguNupud);
@@ -44,6 +47,7 @@ public class Yatzy extends Application {
     }
 
     private static void lopetaManuga() {
+        vihje.setVisible(false);
         viskeid = 0;
         käike = 0;
         täringuteAla.setVisible(false);
@@ -288,6 +292,14 @@ public class Yatzy extends Application {
 
         Yatzy.täringuteAla = taringuteAla;
 
+        VBox alumineOsa = new VBox();
+        alumineOsa.setAlignment(Pos.CENTER);
+        alumineOsa.setSpacing(5);
+
+        vihje = new Label("Veereta uuesti või sisesta väärtus lahtrisse.");
+        vihje.setStyle("-fx-font: italic 8pt \"Arial\";");
+        vihje.setVisible(false);
+
         HBox nupud = new HBox();
         nupud.setSpacing(20);
         nupud.setAlignment(Pos.CENTER);
@@ -304,17 +316,14 @@ public class Yatzy extends Application {
                 veereta.setVisible(false);
         });
 
-        Button lopetamine = new Button("Lõpeta mäng");
-        lopetamine.setMinWidth(80);
-        lopetamine.setOnMouseClicked(event -> Yatzy.lopetaManuga());
-
         Yatzy.nuppudeAla = nupud;
         Yatzy.alustamiseNupud.add(alustamine);
         Yatzy.mänguNupud.add(veereta);
-        Yatzy.mänguNupud.add(lopetamine);
 
         nupud.getChildren().setAll(Yatzy.alustamiseNupud);
-        pane.setBottom(nupud);
+
+        alumineOsa.getChildren().addAll(vihje, nupud);
+        pane.setBottom(alumineOsa);
 
         return pane;
     }
@@ -329,6 +338,11 @@ public class Yatzy extends Application {
 
         Scene stseen = new Scene(pea);
         stseen.getStylesheets().add("yatzy.css");
+
+        stseen.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE)
+                lopetaManuga();
+        });
 
         lava.setScene(stseen);
         lava.setResizable(true);

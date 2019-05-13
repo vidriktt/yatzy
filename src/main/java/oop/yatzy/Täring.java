@@ -17,7 +17,8 @@ public class Täring implements Comparable<Täring> {
 
     void veereta() {
         label.setInt(random.nextInt(6) + 1);
-        //veeretada = false;
+        veeretada = false;
+        label.setStyle("-fx-text-fill: black; ");
     }
 
     int getArv() {

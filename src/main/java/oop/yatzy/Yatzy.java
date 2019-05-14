@@ -7,18 +7,21 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
+import java.beans.EventHandler;
 import java.util.*;
 
 public class Yatzy extends Application {
 
     private static final String[] NIMETUSED = {
             "Ühed", "Kahed", "Kolmed", "Neljad", "Viied", "Kuued",
-            "%iSumma", "%iBoonus",
+            "Summa", "Boonus",
             "Üks paar", "Kaks paari", "Kolmik", "Nelik", "Väike rida", "Suur rida", "Täismaja", "Juhus", "Yatzy",
-            "%iKokku"
+            "Kokku"
     };
 
     private static VBox tekstid;
@@ -35,11 +38,10 @@ public class Yatzy extends Application {
 
 
     private static void alustaManguga() {
-        ((Label)tekstid.getChildren().get(0)).setText("Veereta uuesti (punased veeretavad uuesti)");
+        ((Label) tekstid.getChildren().get(0)).setText("Veereta uuesti (punased veeretavad uuesti)");
         tekstid.getChildren().get(1).setVisible(true);
         restartMang();
         tekstid.setVisible(true);
-        mänguNupud.get(0).setVisible(false);
         täringuteAla.setVisible(true);
         nuppudeAla.getChildren().setAll(mänguNupud);
         veeretaTäringud(true);
@@ -72,11 +74,17 @@ public class Yatzy extends Application {
     private static void veeretaTäringud(boolean koik) {
         viskeid++;
         mänguNupud.get(0).setVisible(false);
-        for (Täring taring : täringud)
-            if (taring.getVeeretada() || koik)
-                taring.veereta();
+        for (Täring täring : täringud)
+            if (täring.getVeeretada() || koik)
+                täring.veereta();
     }
 
+    private static boolean midagiVeeretada() {
+        for (Täring täring : täringud)
+            if (täring.getVeeretada())
+                return true;
+        return false;
+    }
 
     private static int punktid(int lahter) {
         Arrays.sort(täringud);
@@ -96,7 +104,6 @@ public class Yatzy extends Application {
                 tulemus[17].addInt(50);
             }
         } else if (lahter == 8) { // Paar
-
             for (int i = 4; i > 0; i--) {
                 if (täringud[i].getArv() == täringud[i - 1].getArv()) {
                     sum = täringud[i].getArv() * 2;
@@ -206,7 +213,7 @@ public class Yatzy extends Application {
 
     private static Pane looTabeliAla() {
         GridPane pea = new GridPane();
-
+        pea.setAlignment(Pos.CENTER_RIGHT);
         pea.getColumnConstraints().add(new ColumnConstraints(160)); // Esimese rea laius
         pea.getColumnConstraints().add(new ColumnConstraints(60)); // Teise rea laius
 
@@ -215,35 +222,33 @@ public class Yatzy extends Application {
                 Pane rida = new HBox();
 
                 if (i == 0) { // Rida käikude nimetuste jaoks
+                    Label lahter = new Label(Yatzy.NIMETUSED[j]);
+
+                    /* Fonti lisamine */
+                    if (j == 6 || j == 7 || j == 17)
+                        lahter.setStyle("-fx-font: italic 9pt \"Arial\";");
+                    else
+                        lahter.setStyle("-fx-font: bold 9pt \"Arial\";");
+
                     /* Väike vahe, et tekst ei oleks vastu seina */
                     Pane vahe = new Pane();
                     vahe.setMinWidth(5);
 
-                    Label lahter = new Label(Yatzy.NIMETUSED[j]);
-
-                    /* Fonti lisamine */
-                    if (lahter.getText().startsWith("%i")) {
-                        lahter.setStyle("-fx-font: italic 9pt \"Arial\";");
-                        lahter.setText(lahter.getText().substring(2));
-                    } else {
-                        lahter.setStyle("-fx-font: bold 9pt \"Arial\";");
-                    }
-
                     rida.getChildren().addAll(vahe, lahter);
-                } else if (i == 1) {
+                } else { // Mängija punktide jaoks
                     TäringuteLabel lahter = tulemus[j];
 
-                    if (j != 6 && j != 7 && j != 17) {
-                        int finalJ = j;
+                    if (j != 6 && j != 7 && j != 17) { // Summa, boonus, kokku v.a
+                        int finalJ = j; // Effectively final temp var
                         rida.setOnMouseClicked(event -> {
+                            /* Kui mäng käib ja lahtrisse ei ole midagi sisestatud */
                             if (viskeid != 0 && lahter.getText().equals("")) {
-                                mänguNupud.get(0).setVisible(false);
-                                ((Label)tekstid.getChildren().get(0)).setText("Veereta uuesti (punased veeretavad uuesti)");
                                 tekstid.getChildren().get(1).setVisible(true);
+                                ((Label) tekstid.getChildren().get(0)).setText("Veereta uuesti (punased veeretavad uuesti)");
                                 viskeid = 0;
-                                käike++;
                                 lahter.setInt(punktid(finalJ));
                                 veeretaTäringud(true);
+                                käike++;
                                 if (käike >= 15) {
                                     lopetaManuga();
                                 }
@@ -251,24 +256,24 @@ public class Yatzy extends Application {
                         });
                     }
 
+                    /* Vahe1 viib numbri paremasse nurka, vahe2 viib numbri natukene vasakule */
                     Pane vahe1 = new Pane();
+                    HBox.setHgrow(vahe1, Priority.ALWAYS);
                     Pane vahe2 = new Pane();
                     vahe2.setMinWidth(5);
 
                     rida.getChildren().addAll(vahe1, lahter, vahe2);
-                    HBox.setHgrow(vahe1, Priority.ALWAYS);
+
                 }
 
+                /* Tabeli kujundus */
                 rida.getStyleClass().add("table-grid-cell");
-
                 if (i == 0)
                     rida.getStyleClass().add("first-column");
                 if (j == 0)
                     rida.getStyleClass().add("first-row");
                 if (j % 2 == 0)
-                    rida.getStyleClass().add("second");
-
-                //TODO Events
+                    rida.setStyle("-fx-background-color: black, #e3e3e3;");
 
                 pea.add(rida, i, j);
             }
@@ -277,34 +282,38 @@ public class Yatzy extends Application {
         return pea;
     }
 
-    private static Pane looNuppudeJaTaringute() {
-        BorderPane pane = new BorderPane();
-        pane.setMinWidth(300);
-        pane.setMinHeight(300);
-        pane.setPadding(new Insets(0, 0, 0, 20));
+    private static Pane looTäringuteAla() {
+        GridPane pane = new GridPane();
+        pane.setAlignment(Pos.CENTER_LEFT);
 
         HBox taringuteAla = new HBox();
+        taringuteAla.setMinHeight(245);
+        taringuteAla.setMinWidth(245);
         taringuteAla.setSpacing(20);
         taringuteAla.setAlignment(Pos.CENTER);
         taringuteAla.setVisible(false);
-        pane.setCenter(taringuteAla);
+        pane.add(taringuteAla, 0, 0);
+
+        Yatzy.täringuteAla = taringuteAla;
 
         for (Täring taring : täringud) {
-            Label t = taring.getLabel();
-            t.setOnMouseClicked(event -> {
+            taring.getLabel().setOnMouseClicked(event -> {
                 if (viskeid != 3) {
-                    mänguNupud.get(0).setVisible(true);
                     taring.toggleVeereta();
-                    if (!taring.getVeeretada())
-                        t.setStyle("-fx-text-fill: black; ");
+
+                    if (midagiVeeretada())
+                        mänguNupud.get(0).setVisible(true);
                     else
-                        t.setStyle("-fx-text-fill: red; ");
+                        mänguNupud.get(0).setVisible(false);
+
+                    if (!taring.getVeeretada())
+                        taring.getLabel().setStyle("-fx-text-fill: black; ");
+                    else
+                        taring.getLabel().setStyle("-fx-text-fill: red; ");
                 }
             });
             taringuteAla.getChildren().add(taring.getLabel());
         }
-
-        Yatzy.täringuteAla = taringuteAla;
 
         VBox alumineOsa = new VBox();
         alumineOsa.setAlignment(Pos.CENTER);
@@ -315,17 +324,17 @@ public class Yatzy extends Application {
         tekstid.setAlignment(Pos.CENTER);
         tekstid.setSpacing(2);
 
-        Label vihje1 = new Label("Veereta uuesti (punased veeretavad uuesti)");
+        Label vihje1 = new Label(); // väärtustatakse mujal
         vihje1.setStyle("-fx-font: italic 8pt \"Arial\";");
         Label vihje2 = new Label("või sisesta väärtus lahtrisse.");
         vihje2.setStyle("-fx-font: italic 8pt \"Arial\";");
 
         tekstid.getChildren().addAll(vihje1, vihje2);
 
-
         HBox nupud = new HBox();
         nupud.setSpacing(20);
         nupud.setAlignment(Pos.CENTER);
+        Yatzy.nuppudeAla = nupud;
 
         Button alustamine = new Button("Alusta mänguga!");
         alustamine.setMinWidth(80);
@@ -337,30 +346,34 @@ public class Yatzy extends Application {
             Yatzy.veeretaTäringud(false);
             if (viskeid >= 3) {
                 veereta.setVisible(false);
-                ((Label)tekstid.getChildren().get(0)).setText("Sisesta väärtus lahtrisse.");
+                ((Label) tekstid.getChildren().get(0)).setText("Sisesta väärtus lahtrisse.");
                 tekstid.getChildren().get(1).setVisible(false);
             }
         });
 
-        Yatzy.nuppudeAla = nupud;
         Yatzy.alustamiseNupud.add(alustamine);
         Yatzy.mänguNupud.add(veereta);
 
         nupud.getChildren().setAll(Yatzy.alustamiseNupud);
-
         alumineOsa.getChildren().addAll(tekstid, nupud);
-        pane.setBottom(alumineOsa);
+
+        pane.add(alumineOsa, 0, 1);
 
         return pane;
     }
 
     @Override
     public void start(Stage lava) {
-        BorderPane pea = new BorderPane();
-        pea.getStyleClass().add("main-grid");
+        HBox pea = new HBox();
+        pea.setAlignment(Pos.CENTER);
+        pea.setPadding(new Insets(20));
+        pea.setSpacing(30);
 
-        pea.setLeft(looTabeliAla());
-        pea.setRight(looNuppudeJaTaringute());
+        Pane tabeliAla = looTabeliAla();
+        Pane täringuteAla = looTäringuteAla();
+        HBox.setHgrow(tabeliAla, Priority.ALWAYS);
+        HBox.setHgrow(täringuteAla, Priority.ALWAYS);
+        pea.getChildren().addAll(tabeliAla, täringuteAla);
 
         Scene stseen = new Scene(pea);
         stseen.getStylesheets().add("yatzy.css");

@@ -43,7 +43,7 @@ public class Täring implements Comparable<Täring> {
 
     @Override
     public int compareTo(Täring o) {
-        return (this.getArv() > o.getArv()) ? 1 : -1;
+        return Integer.compare(this.getArv(), o.getArv());
     }
 
     @Override

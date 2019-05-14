@@ -13,6 +13,7 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
 import java.beans.EventHandler;
+import java.io.*;
 import java.util.*;
 
 public class Yatzy extends Application {
@@ -38,7 +39,7 @@ public class Yatzy extends Application {
 
 
     private static void alustaManguga() {
-        ((Label) tekstid.getChildren().get(0)).setText("Veereta uuesti (punased veeretavad uuesti)");
+        ((Label) tekstid.getChildren().get(0)).setText("Valige täringud, mida uuesti veeretada");
         tekstid.getChildren().get(1).setVisible(true);
         restartMang();
         tekstid.setVisible(true);
@@ -52,6 +53,12 @@ public class Yatzy extends Application {
         viskeid = 0;
         käike = 0;
         täringuteAla.setVisible(false);
+
+        String faili = "";
+        for (TäringuteLabel i : tulemus)
+            faili += i.getInt() + "   ";
+        kirjutaFaili("tulemused.txt", faili);
+
         nuppudeAla.getChildren().setAll(alustamiseNupud);
     }
 
@@ -244,7 +251,7 @@ public class Yatzy extends Application {
                             /* Kui mäng käib ja lahtrisse ei ole midagi sisestatud */
                             if (viskeid != 0 && lahter.getText().equals("")) {
                                 tekstid.getChildren().get(1).setVisible(true);
-                                ((Label) tekstid.getChildren().get(0)).setText("Veereta uuesti (punased veeretavad uuesti)");
+                                ((Label) tekstid.getChildren().get(0)).setText("Valige täringud, mida uuesti veeretada");
                                 viskeid = 0;
                                 lahter.setInt(punktid(finalJ));
                                 veeretaTäringud(true);
@@ -326,7 +333,7 @@ public class Yatzy extends Application {
 
         Label vihje1 = new Label(); // väärtustatakse mujal
         vihje1.setStyle("-fx-font: italic 8pt \"Arial\";");
-        Label vihje2 = new Label("või sisesta väärtus lahtrisse.");
+        Label vihje2 = new Label("või sisesta väärtus soovitud lahtrisse.");
         vihje2.setStyle("-fx-font: italic 8pt \"Arial\";");
 
         tekstid.getChildren().addAll(vihje1, vihje2);
@@ -346,7 +353,7 @@ public class Yatzy extends Application {
             Yatzy.veeretaTäringud(false);
             if (viskeid >= 3) {
                 veereta.setVisible(false);
-                ((Label) tekstid.getChildren().get(0)).setText("Sisesta väärtus lahtrisse.");
+                ((Label) tekstid.getChildren().get(0)).setText("Sisesta väärtus soovitud lahtrisse.");
                 tekstid.getChildren().get(1).setVisible(false);
             }
         });
@@ -360,6 +367,16 @@ public class Yatzy extends Application {
         pane.add(alumineOsa, 0, 1);
 
         return pane;
+    }
+
+    private static void kirjutaFaili(String failinimi, String sisu) {
+        try {
+            PrintWriter out = new PrintWriter(new FileWriter(new File(failinimi), true));
+            out.append(sisu + "\n");
+            out.close();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -395,4 +412,3 @@ public class Yatzy extends Application {
     }
 
 }
-

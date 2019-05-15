@@ -372,12 +372,10 @@ public class Yatzy extends Application {
     }
 
     private static void kirjutaFaili(String failinimi, String sisu) {
-        try {
-            PrintWriter out = new PrintWriter(new FileWriter(new File(failinimi), true));
-            out.append(sisu + "\n");
-            out.close();
+        try (PrintWriter out = new PrintWriter(new FileWriter(new File(failinimi), true))) {
+            out.println(sisu);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Faili kirjutamisel tekkis viga: " + e.getMessage());
         }
     }
 

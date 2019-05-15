@@ -11,11 +11,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
 import java.beans.EventHandler;
 import java.io.*;
+import java.sql.Timestamp;
 import java.util.*;
 
 public class Yatzy extends Application {
@@ -40,6 +42,7 @@ public class Yatzy extends Application {
 
     private static int käike = 0;
     private static int viskeid = 0;
+    private static String[] seaded = new String[2];
 
 
     private static void alustaManguga() {
@@ -59,10 +62,10 @@ public class Yatzy extends Application {
         käike = 0;
         täringuteAla.setVisible(false);
 
-        StringBuilder faili = new StringBuilder();
+        StringBuilder faili = new StringBuilder(seaded[0] + "\t" + new Timestamp(System.currentTimeMillis()) + "\t");
         for (TäringuteLabel i : tulemus)
-            faili.append(i.getInt()).append("\t");
-        kirjutaFaili("tulemused.txt", faili.toString());
+            faili.append("\t").append(i.getInt());
+        kirjutaFaili(faili.toString());
 
         nuppudeAla.getChildren().setAll(alustamiseNupud);
     }
@@ -371,8 +374,8 @@ public class Yatzy extends Application {
         return pane;
     }
 
-    private static void kirjutaFaili(String failinimi, String sisu) {
-        try (PrintWriter out = new PrintWriter(new FileWriter(new File(failinimi), true))) {
+    private static void kirjutaFaili(String sisu) {
+        try (PrintWriter out = new PrintWriter(new FileWriter(new File("tulemused.txt"), true))) {
             out.println(sisu);
         } catch (IOException e) {
             System.out.println("Faili kirjutamisel tekkis viga: " + e.getMessage());
@@ -384,12 +387,23 @@ public class Yatzy extends Application {
             täringutePildid[i] = new Image("d" + (i + 1) + ".png", 50, 50, false, false);
     }
 
+    private static void loeSeaded() {
+        try (BufferedReader br = new BufferedReader(new FileReader("config.txt"))) {
+            seaded[0] = br.readLine().substring(6);
+            seaded[1] = br.readLine().substring(7);
+        } catch (IOException e) {
+            System.out.println("Failist lugemisel tekkis viga: " + e.getMessage());
+        }
+    }
+
+
     @Override
     public void start(Stage lava) {
         HBox pea = new HBox();
         pea.setAlignment(Pos.CENTER);
         pea.setPadding(new Insets(20));
         pea.setSpacing(30);
+        pea.setStyle("-fx-background-color: " + seaded[1]);
 
         Pane tabeliAla = looTabeliAla();
         Pane täringuteAla = looTäringuteAla();
@@ -413,6 +427,7 @@ public class Yatzy extends Application {
 
     public static void main(String[] args) {
         loadTäringutePildid();
+        loeSeaded();
         restartMang();
         launch(args);
     }

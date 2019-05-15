@@ -7,3 +7,6 @@ out/
 .gradle/
 build/
 !gradle-wrapper.jar
+
+# Yatzy
+tulemused.txt

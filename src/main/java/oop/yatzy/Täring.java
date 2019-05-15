@@ -1,6 +1,6 @@
 package oop.yatzy;
 
-import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 
 import java.util.Random;
 
@@ -8,21 +8,23 @@ public class Täring implements Comparable<Täring> {
 
     private static Random random = new Random();
 
+    private int arv;
     private boolean veeretada = true;
-    private TäringuteLabel label = new TäringuteLabel();
+    private ImageView image = new ImageView();
 
-    public Täring() {
+    Täring() {
         veereta();
     }
 
     void veereta() {
-        label.setInt(random.nextInt(6) + 1);
-        veeretada = false;
-        label.setStyle("-fx-text-fill: black; ");
+        veeretada = true;
+        arv = random.nextInt(6) + 1;
+        image.setTranslateY(0);
+        image.setImage(Yatzy.täringutePildid[arv - 1]);
     }
 
     int getArv() {
-        return Integer.parseInt(label.getText());
+        return arv;
     }
 
     boolean getVeeretada() {
@@ -31,14 +33,19 @@ public class Täring implements Comparable<Täring> {
 
     void toggleVeereta() {
         veeretada = !veeretada;
+        if (veeretada)
+            image.setTranslateY(0);
+        else
+            image.setTranslateY(-60);
     }
 
     void setVeeretada(boolean veeretada) {
-        this.veeretada = veeretada;
+        if (veeretada != this.veeretada)
+            toggleVeereta();
     }
 
-    public Label getLabel() {
-        return label;
+    ImageView getImage() {
+        return image;
     }
 
     @Override

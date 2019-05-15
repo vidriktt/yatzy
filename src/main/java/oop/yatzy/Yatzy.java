@@ -6,6 +6,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -17,6 +19,8 @@ import java.io.*;
 import java.util.*;
 
 public class Yatzy extends Application {
+
+    public static Image[] täringutePildid = new Image[6];
 
     private static final String[] NIMETUSED = {
             "Ühed", "Kahed", "Kolmed", "Neljad", "Viied", "Kuued",
@@ -39,12 +43,13 @@ public class Yatzy extends Application {
 
 
     private static void alustaManguga() {
-        ((Label) tekstid.getChildren().get(0)).setText("Valige täringud, mida uuesti veeretada");
+        ((Label) tekstid.getChildren().get(0)).setText("Valige täringud, mida jätta");
         tekstid.getChildren().get(1).setVisible(true);
         restartMang();
         tekstid.setVisible(true);
         täringuteAla.setVisible(true);
         nuppudeAla.getChildren().setAll(mänguNupud);
+        mänguNupud.get(0).setVisible(true);
         veeretaTäringud(true);
     }
 
@@ -54,10 +59,10 @@ public class Yatzy extends Application {
         käike = 0;
         täringuteAla.setVisible(false);
 
-        String faili = "";
+        StringBuilder faili = new StringBuilder();
         for (TäringuteLabel i : tulemus)
-            faili += i.getInt() + "   ";
-        kirjutaFaili("tulemused.txt", faili);
+            faili.append(i.getInt()).append("\t");
+        kirjutaFaili("tulemused.txt", faili.toString());
 
         nuppudeAla.getChildren().setAll(alustamiseNupud);
     }
@@ -80,7 +85,6 @@ public class Yatzy extends Application {
 
     private static void veeretaTäringud(boolean koik) {
         viskeid++;
-        mänguNupud.get(0).setVisible(false);
         for (Täring täring : täringud)
             if (täring.getVeeretada() || koik)
                 täring.veereta();
@@ -250,8 +254,9 @@ public class Yatzy extends Application {
                         rida.setOnMouseClicked(event -> {
                             /* Kui mäng käib ja lahtrisse ei ole midagi sisestatud */
                             if (viskeid != 0 && lahter.getText().equals("")) {
+                                mänguNupud.get(0).setVisible(true);
                                 tekstid.getChildren().get(1).setVisible(true);
-                                ((Label) tekstid.getChildren().get(0)).setText("Valige täringud, mida uuesti veeretada");
+                                ((Label) tekstid.getChildren().get(0)).setText("Valige täringud, mida jätta");
                                 viskeid = 0;
                                 lahter.setInt(punktid(finalJ));
                                 veeretaTäringud(true);
@@ -304,7 +309,7 @@ public class Yatzy extends Application {
         Yatzy.täringuteAla = taringuteAla;
 
         for (Täring taring : täringud) {
-            taring.getLabel().setOnMouseClicked(event -> {
+            taring.getImage().setOnMouseClicked(event -> {
                 if (viskeid != 3) {
                     taring.toggleVeereta();
 
@@ -312,14 +317,9 @@ public class Yatzy extends Application {
                         mänguNupud.get(0).setVisible(true);
                     else
                         mänguNupud.get(0).setVisible(false);
-
-                    if (!taring.getVeeretada())
-                        taring.getLabel().setStyle("-fx-text-fill: black; ");
-                    else
-                        taring.getLabel().setStyle("-fx-text-fill: red; ");
                 }
             });
-            taringuteAla.getChildren().add(taring.getLabel());
+            taringuteAla.getChildren().add(taring.getImage());
         }
 
         VBox alumineOsa = new VBox();
@@ -355,6 +355,8 @@ public class Yatzy extends Application {
                 veereta.setVisible(false);
                 ((Label) tekstid.getChildren().get(0)).setText("Sisesta väärtus soovitud lahtrisse.");
                 tekstid.getChildren().get(1).setVisible(false);
+                for (Täring täring : täringud)
+                    täring.setVeeretada(false);
             }
         });
 
@@ -374,9 +376,14 @@ public class Yatzy extends Application {
             PrintWriter out = new PrintWriter(new FileWriter(new File(failinimi), true));
             out.append(sisu + "\n");
             out.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void loadTäringutePildid() {
+        for (int i = 0; i < 6; i++)
+            täringutePildid[i] = new Image("d" + (i + 1) + ".png", 50, 50, false, false);
     }
 
     @Override
@@ -407,6 +414,7 @@ public class Yatzy extends Application {
     }
 
     public static void main(String[] args) {
+        loadTäringutePildid();
         restartMang();
         launch(args);
     }
